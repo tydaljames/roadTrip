@@ -1,6 +1,6 @@
 import java.util.List;
 
-public class Path {
+public class TripSegment {
 
     /**
      *
@@ -8,16 +8,12 @@ public class Path {
     List<City> route;
 
     /**
-     * The starting city for the given route.
-     *
-     * Note: Routes are two-directional. A path may go from endCity to StartCity, and vice versa.
+     * The starting city for the given trip segment.
      */
     City startCity;
 
     /**
      * The ending city for the given route.
-     *
-     * Note: Routes are two-directional. A path may go from endCity to StartCity, and vice versa.
      */
     City endCity;
 
@@ -32,10 +28,7 @@ public class Path {
     int totalMiles;
 
 
-
-
-
-    public Path(List<City> route, int totalMinutes, int totalMiles, City startCity, City endCity){
+    public TripSegment(List<City> route, int totalMinutes, int totalMiles, City startCity, City endCity){
         this.route = route;
         this.totalMinutes = totalMinutes;
         this.totalMiles = totalMiles;

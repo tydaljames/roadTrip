@@ -1,28 +1,27 @@
 import java.util.*;
 
-public class pathFinder {
+public class ShortestPathFinder {
     private List<City> Cities;
-    private List<road> roads;
+    private List<Road> roads;
     private Map<City, City> predecessors;
     private Map<City, Integer> distance;
     private Set<City> known;
     private Set<City> unknown;
 
-    public pathFinder(ArrayList<City> Cities, ArrayList<road> roads) {
+    public ShortestPathFinder(ArrayList<City> Cities, ArrayList<Road> roads) {
         this.Cities = Cities;
         this.roads = roads;
     }
 
-
         /*Sets distances to destinations using Dijkstra's algorithm*/
-    public void dijkstras(City start_city) {
+    public void dijkstras(City startCity) {
         predecessors = new HashMap<>();
         distance = new HashMap<>();
         known = new HashSet<>();
         unknown = new HashSet<>();
 
-        distance.put(start_city, 0);
-        unknown.add(start_city);
+        distance.put(startCity, 0);
+        unknown.add(startCity);
         while (unknown.size() > 0) {
             City d = findLowest(unknown);
             known.add(d);
@@ -32,13 +31,13 @@ public class pathFinder {
     }
 
 
-        /*Uses distances set by Dijkstra's Algorithm to find the shortest path to end_city*/
-    public Path findPath(City start_city, City end_city) {
-        int total_minutes = 0;
-        int total_miles = 0;
+        /*Uses distances set by Dijkstra's Algorithm to find the shortest path to endCity*/
+    public TripSegment findPath(City startCity, City endCity) {
+        int totalMinutes = 0;
+        int totalMiles = 0;
         List<City> route = new ArrayList<>();
 
-        City cur = end_city;
+        City cur = endCity;
         if (predecessors.get(cur) == null) {
             return null;
         }
@@ -51,29 +50,29 @@ public class pathFinder {
         Collections.reverse(route);
 
         for (int i = 1; i < route.size(); i++) {
-            total_minutes += findDistance(route.get(i - 1), route.get(i));
-            total_miles += findMiles(route.get(i - 1), route.get(i));
+            totalMinutes += findDistance(route.get(i - 1), route.get(i));
+            totalMiles += findMiles(route.get(i - 1), route.get(i));
         }
 
-        /*Path object is created containing all data on the current start_city to end_city path segment*/
-        Path newpath = new Path(route, total_minutes, total_miles, start_city, end_city);
+        /*Path object is created containing all data on the current startCity to endCity path segment*/
+        TripSegment newpath = new TripSegment(route, totalMinutes, totalMiles, startCity, endCity);
         return newpath;
     }
 
     /*Runs all subfunctions and delivers the returns the resulting list of paths*/
-    public List<Path> route(String starting_city, String ending_city, List<String> attractions) {
+    public List<TripSegment> route(String startingCity, String endingCity, List<String> attractions) {
         City start = null;
         City end = null;
         List<City> attractionList = new ArrayList<>();
-        List<Path> Paths = new ArrayList<>();
+        List<TripSegment> tripSegments = new ArrayList<>();
 
 
             /*Converts strings to destination objects for later use*/
         for (City d : Cities) {
-            if (d.getCityName().equalsIgnoreCase(starting_city)) {
+            if (d.getCityName().equalsIgnoreCase(startingCity)) {
                 start = d;
             }
-            if (d.getCityName().equalsIgnoreCase(ending_city)) {
+            if (d.getCityName().equalsIgnoreCase(endingCity)) {
                 end = d;
             }
 
@@ -92,13 +91,13 @@ public class pathFinder {
         while(attractionList.size() > 0){
             nearest = nearestAttraction(attractionList);
             attractionList.remove(nearest);
-            Paths.add(findPath(start, nearest));
+            tripSegments.add(findPath(start, nearest));
             start = nearest;
             dijkstras(start);
         }
 
-        Paths.add(findPath(nearest,end));
-        return Paths;
+        tripSegments.add(findPath(nearest,end));
+        return tripSegments;
     }
 
             /*Finds the nearest attraction to our current node based on the current values in the distance map*/
@@ -152,7 +151,7 @@ public class pathFinder {
     }
             /*Returns the distance in minutes between two destinations*/
         private int findDistance(City start, City end){
-            for(road r : roads){
+            for(Road r : roads){
                 if(r.start.equals(start) && r.end.equals(end)){
                     return r.minutes;
                 }
@@ -165,7 +164,7 @@ public class pathFinder {
 
             /*Returns the distance in miles between two destinations*/
         private int findMiles(City start, City end){
-            for(road r : roads){
+            for(Road r : roads){
                 if(r.start.equals(start) && r.end.equals(end)){
                     return r.miles;
                 }
@@ -180,7 +179,7 @@ public class pathFinder {
         private List<City> findNeighbors(City d){
 
         List<City> neighbors = new ArrayList<City>();
-        for(road r : roads){
+        for(Road r : roads){
             if(!known.contains(r.start) && r.end.equals(d)){
                 neighbors.add(r.start);
             }
