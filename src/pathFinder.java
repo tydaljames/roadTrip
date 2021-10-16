@@ -1,21 +1,21 @@
 import java.util.*;
 
 public class pathFinder {
-    private List<destination> destinations;
+    private List<City> Cities;
     private List<road> roads;
-    private Map<destination, destination> predecessors;
-    private Map<destination, Integer> distance;
-    private Set<destination> known;
-    private Set<destination> unknown;
+    private Map<City, City> predecessors;
+    private Map<City, Integer> distance;
+    private Set<City> known;
+    private Set<City> unknown;
 
-    public pathFinder(ArrayList<destination> destinations, ArrayList<road> roads) {
-        this.destinations = destinations;
+    public pathFinder(ArrayList<City> Cities, ArrayList<road> roads) {
+        this.Cities = Cities;
         this.roads = roads;
     }
 
 
         /*Sets distances to destinations using Dijkstra's algorithm*/
-    public void dijkstras(destination start_city) {
+    public void dijkstras(City start_city) {
         predecessors = new HashMap<>();
         distance = new HashMap<>();
         known = new HashSet<>();
@@ -24,7 +24,7 @@ public class pathFinder {
         distance.put(start_city, 0);
         unknown.add(start_city);
         while (unknown.size() > 0) {
-            destination d = findLowest(unknown);
+            City d = findLowest(unknown);
             known.add(d);
             unknown.remove(d);
             findShortestPath(d);
@@ -33,12 +33,12 @@ public class pathFinder {
 
 
         /*Uses distances set by Dijkstra's Algorithm to find the shortest path to end_city*/
-    public path findPath(destination start_city, destination end_city) {
+    public Path findPath(City start_city, City end_city) {
         int total_minutes = 0;
         int total_miles = 0;
-        List<destination> route = new ArrayList<>();
+        List<City> route = new ArrayList<>();
 
-        destination cur = end_city;
+        City cur = end_city;
         if (predecessors.get(cur) == null) {
             return null;
         }
@@ -56,29 +56,29 @@ public class pathFinder {
         }
 
         /*Path object is created containing all data on the current start_city to end_city path segment*/
-        path newpath = new path(route, total_minutes, total_miles, start_city, end_city);
+        Path newpath = new Path(route, total_minutes, total_miles, start_city, end_city);
         return newpath;
     }
 
     /*Runs all subfunctions and delivers the returns the resulting list of paths*/
-    public List<path> route(String starting_city, String ending_city, List<String> attractions) {
-        destination start = null;
-        destination end = null;
-        List<destination> attractionList = new ArrayList<>();
-        List<path> paths = new ArrayList<>();
+    public List<Path> route(String starting_city, String ending_city, List<String> attractions) {
+        City start = null;
+        City end = null;
+        List<City> attractionList = new ArrayList<>();
+        List<Path> Paths = new ArrayList<>();
 
 
             /*Converts strings to destination objects for later use*/
-        for (destination d : destinations) {
-            if (d.city.equalsIgnoreCase(starting_city)) {
+        for (City d : Cities) {
+            if (d.getCityName().equalsIgnoreCase(starting_city)) {
                 start = d;
             }
-            if (d.city.equalsIgnoreCase(ending_city)) {
+            if (d.getCityName().equalsIgnoreCase(ending_city)) {
                 end = d;
             }
 
             for (String s : attractions) {
-                for(String a : d.attraction) {
+                for(String a : d.getAttractionsList()) {
                     if (a.equalsIgnoreCase(s)) {
                         attractionList.add(d);
                     }
@@ -87,26 +87,26 @@ public class pathFinder {
         }
 
         dijkstras(start);
-        destination nearest = start;
+        City nearest = start;
 
         while(attractionList.size() > 0){
             nearest = nearestAttraction(attractionList);
             attractionList.remove(nearest);
-            paths.add(findPath(start, nearest));
+            Paths.add(findPath(start, nearest));
             start = nearest;
             dijkstras(start);
         }
 
-        paths.add(findPath(nearest,end));
-        return paths;
+        Paths.add(findPath(nearest,end));
+        return Paths;
     }
 
             /*Finds the nearest attraction to our current node based on the current values in the distance map*/
-        private destination nearestAttraction(List<destination> attractionList) {
-            destination nearest = null;
+        private City nearestAttraction(List<City> attractionList) {
+            City nearest = null;
             int pathWeight = Integer.MAX_VALUE;
 
-            for(destination a : attractionList){
+            for(City a : attractionList){
                 int i = distance.get(a);
                 if (i < pathWeight) {
                     pathWeight = distance.get(a);
@@ -117,9 +117,9 @@ public class pathFinder {
     }
 
         /*Finds the lowest value unknown node for Dijkstra's Algorithm*/
-    private destination findLowest(Set<destination> destinations){
-        destination lowest = null;
-        for(destination d : destinations){
+    private City findLowest(Set<City> Cities){
+        City lowest = null;
+        for(City d : Cities){
             if(lowest == null || (shortestDistance(d) < shortestDistance(lowest))  ){
                 lowest = d;
             }
@@ -128,10 +128,10 @@ public class pathFinder {
     }
 
             /*Finds shortest paths between nodes and updates in distance map, if shorter than existing paths*/
-        private void findShortestPath(destination d){
-            List<destination> neighbors = findNeighbors(d);
+        private void findShortestPath(City d){
+            List<City> neighbors = findNeighbors(d);
 
-            for(destination city : neighbors){
+            for(City city : neighbors){
                 if(shortestDistance(city) > (shortestDistance(d) + findDistance(d,city))){
                     distance.put(city,shortestDistance(d) + findDistance(d, city));
                     predecessors.put(city, d);
@@ -141,7 +141,7 @@ public class pathFinder {
         }
 
 
-    private int shortestDistance(destination d){
+    private int shortestDistance(City d){
         Integer i = distance.get(d);
         if(i == null){
             return Integer.MAX_VALUE;
@@ -151,7 +151,7 @@ public class pathFinder {
         }
     }
             /*Returns the distance in minutes between two destinations*/
-        private int findDistance(destination start, destination end){
+        private int findDistance(City start, City end){
             for(road r : roads){
                 if(r.start.equals(start) && r.end.equals(end)){
                     return r.minutes;
@@ -164,7 +164,7 @@ public class pathFinder {
         }
 
             /*Returns the distance in miles between two destinations*/
-        private int findMiles(destination start, destination end){
+        private int findMiles(City start, City end){
             for(road r : roads){
                 if(r.start.equals(start) && r.end.equals(end)){
                     return r.miles;
@@ -177,9 +177,9 @@ public class pathFinder {
         }
 
             /*Finds and returns a list of neighbors for the given node*/
-        private List<destination> findNeighbors(destination d){
+        private List<City> findNeighbors(City d){
 
-        List<destination> neighbors = new ArrayList<destination>();
+        List<City> neighbors = new ArrayList<City>();
         for(road r : roads){
             if(!known.contains(r.start) && r.end.equals(d)){
                 neighbors.add(r.start);

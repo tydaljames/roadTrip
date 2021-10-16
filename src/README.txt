@@ -1,7 +1,7 @@
 -- roadTrip --
 Created by Tyler D'Alessandro - 30 NOV 2020
 
-This program takes user inputs and computes the shortest path between cities and attractions.
+This program takes user inputs and computes the shortest Path between cities and attractions.
 
 How to use:
 1) Enter starting city.
@@ -10,4 +10,4 @@ How to use:
 4) Enter each attraction one by one.
 
 
-The program will find the shortest path to visit all attractions and reach your destination. Enjoy!
+The program will find the shortest Path to visit all attractions and reach your City. Enjoy!

@@ -7,18 +7,34 @@ import java.util.List;
 import java.util.Scanner;
 
 public class roadTrip {
-    String start_city = "";
-    String end_city = "";
-    ArrayList<road> roads;
-    ArrayList<destination> destinations;
-    ArrayList<String> attractions;
 
+    /**
+     * The user-entered city that the Road Trip will start at.
+     */
+    private String startCity;
 
+    /**
+     * The user-entered city that the Road Trip will end at.
+     */
+    private String endCity;
 
-        /*Checks for valid user inputs for start_city and end_city*/
+    /**
+     * A list containing all of the roads.
+     */
+    private final ArrayList<road> roads;
+    private final ArrayList<City> Cities;
+    private final ArrayList<String> attractions;
+
+    public roadTrip() {
+        this.roads = new ArrayList<>();
+        this.Cities = new ArrayList<>();
+        this.attractions = new ArrayList<>();
+    }
+
+    /*Checks for valid user inputs for startCity and endCity*/
     private boolean checkInput(String input){
-        for(int i=0;i<destinations.size();i++){
-            if(destinations.get(i).city.equalsIgnoreCase(input)){
+        for(int i = 0; i< Cities.size(); i++){
+            if(Cities.get(i).getCityName().equalsIgnoreCase(input)){
                 return true;
             }
         }
@@ -32,11 +48,11 @@ public class roadTrip {
                 return false;
             }
         }
-        for(int j=0;j<destinations.size();j++){
-            destination d = destinations.get(j);
-            if(d.attraction.size()>0){
-                for(int k=0;k<d.attraction.size();k++){
-                    if(d.attraction.get(k).equalsIgnoreCase(input)){
+        for(int j = 0; j< Cities.size(); j++){
+            City d = Cities.get(j);
+            if(d.getAttractionsList().size()>0){
+                for(int k = 0; k<d.getAttractionsList().size(); k++){
+                    if(d.getAttractionsList().get(k).equalsIgnoreCase(input)){
                         attractions.add(input);
                         return true;
                 }
@@ -51,13 +67,13 @@ public class roadTrip {
     public void destinationList(){
         System.out.println("List of destinations: \n");
 
-        for(int i=0;i<destinations.size();i++){
-            destination d = destinations.get(i);
-            for(int j=0;j<d.attraction.size();j++){
-                System.out.println((i+1) + " " + d.city + " -- " + (j+1) + " " + d.attraction.get(j));
+        for(int i = 0; i< Cities.size(); i++){
+            City d = Cities.get(i);
+            for(int j = 0; j<d.getAttractionsList().size(); j++){
+                System.out.println((i+1) + " " + d.getCityName() + " -- " + (j+1) + " " + d.getAttractionsList().get(j));
             }
-            if(d.attraction.size() == 0){
-                System.out.println((i+1) + " " + d.city);
+            if(d.getAttractionsList().size() == 0){
+                System.out.println((i+1) + " " + d.getCityName());
             }
 
         }
@@ -69,18 +85,15 @@ public class roadTrip {
         int i=0;
         for(road r : roads){
             i++;
-            System.out.println(i + " " + r.start.city + ", " + r.end.city);
+            System.out.println(i + " " + r.start.getCityName() + ", " + r.end.getCityName());
         }
     }
 
         /*Gathers all data from the input .csv files and creates associated lists and objects*/
     private void getData() throws IOException {
-        roads = new ArrayList<>();
-        destinations = new ArrayList<>();
-        attractions = new ArrayList<>();
 
-        destination source = null;
-        destination target = null;
+        City source = null;
+        City target = null;
         boolean city_exists = false;
         BufferedReader bf = null;
 
@@ -95,35 +108,35 @@ public class roadTrip {
             while((line = bf.readLine()) != null){
                 String[] data = line.split(",");
 
-                for(int i=0;i<destinations.size();i++){
-                    destination d = destinations.get(i);
-                    if(d.city.equalsIgnoreCase(data[0])){
+                for(int i = 0; i< Cities.size(); i++){
+                    City d = Cities.get(i);
+                    if(d.getCityName().equalsIgnoreCase(data[0])){
                         city_exists = true;
                     }
                 }
                 if(city_exists == false){
-                    destination d = new destination(data[0]);
-                    destinations.add(d);
+                    City d = new City(data[0]);
+                    Cities.add(d);
                 }
                 city_exists = false;
 
-                for(int i=0;i<destinations.size();i++){
-                    destination d = destinations.get(i);
-                    if(d.city.equalsIgnoreCase(data[1])){
+                for(int i = 0; i< Cities.size(); i++){
+                    City d = Cities.get(i);
+                    if(d.getCityName().equalsIgnoreCase(data[1])){
                         city_exists = true;
                     }
                 }
                 if(city_exists == false){
-                    destination d = new destination(data[1]);
-                    destinations.add(d);
+                    City d = new City(data[1]);
+                    Cities.add(d);
                 }
                 city_exists = false;
 
-                for (destination d : destinations){
-                    if(d.city.equalsIgnoreCase(data[0])){
+                for (City d : Cities){
+                    if(d.getCityName().equalsIgnoreCase(data[0])){
                         source = d;
                     }
-                    if(d.city.equalsIgnoreCase(data[1])){
+                    if(d.getCityName().equalsIgnoreCase(data[1])){
                         target = d;
                     }
 
@@ -149,11 +162,11 @@ public class roadTrip {
             String[] data = line.split(",");
 
 
-                for(int i=0;i<destinations.size();i++){
-                    destination d = destinations.get(i);
-                    if(d.city.equalsIgnoreCase(data[1])){
+                for(int i = 0; i< Cities.size(); i++){
+                    City d = Cities.get(i);
+                    if(d.getCityName().equalsIgnoreCase(data[1])){
 
-                        d.attraction.add(data[0]);
+                        d.addAttraction(data[0]);
                     }
                 }
         }
@@ -174,21 +187,21 @@ public class roadTrip {
 
             do{
                 System.out.println("Enter the city you would like to start, or enter list to see the full list of options:");
-                start_city = sc.nextLine();
-                if(start_city.equalsIgnoreCase("list")){
+                startCity = sc.nextLine();
+                if(startCity.equalsIgnoreCase("list")){
                     destinationList();
                 }
             }
-            while(checkInput(start_city) == false);
+            while(checkInput(startCity) == false);
 
             do {
                 System.out.println("Enter the city you would like to end:");
-                end_city = sc.nextLine();
-                if(end_city.equalsIgnoreCase("list")){
+                endCity = sc.nextLine();
+                if(endCity.equalsIgnoreCase("list")){
                     destinationList();
                 }
             }
-            while(checkInput(end_city) == false);
+            while(checkInput(endCity) == false);
 
 
             System.out.println("How many stops would you like to make on the way?");
@@ -221,14 +234,11 @@ public class roadTrip {
 
         /*Runs pathfinder, uses Dijkstra's Algorithm to find shortest paths.*/
     private void runAlgo(){
-        pathFinder p = new pathFinder(destinations,roads);
-        List<path> paths = (p.route(start_city, end_city, attractions));
+        pathFinder p = new pathFinder(Cities,roads);
+        List<Path> Paths = (p.route(startCity, endCity, attractions));
 
-        for(path path : paths){
-            if(path == null){
-                System.out.println("");
-            }
-            else {
+        for(Path path : Paths){
+            if(path != null){
                 System.out.println(path);
             }
         }
